@@ -1,0 +1,9 @@
+.vscode
+.vs
+bin
+obj
+build
+artifacts
+.DS_Store
+**/.DS_Store
+
