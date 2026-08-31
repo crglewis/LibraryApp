@@ -5,6 +5,7 @@ import { ApiService } from '../services/api.service';
 import { Book, Review, User } from '../models';
 import { ReviewFormComponent } from '../components/review-form.component';
 import { NavComponent } from '../components/nav.component';
+import { computeAverageRating, getRatingStars } from '../utils';
 
 @Component({
   selector: 'app-book-detail',
@@ -82,14 +83,8 @@ export class BookDetailPage implements OnInit {
   }
 
   get averageRating(): number | null {
-    if (!this.reviews.length) return null;
-    return this.reviews.reduce((sum, r) => sum + r.rating, 0) / this.reviews.length;
+    return computeAverageRating(this.reviews) ?? null;
   }
 
-  getRatingStars(rating: number): string {
-    const rounded = Math.round(rating);
-    let stars = '';
-    for (let i = 1; i <= 5; i++) stars += i <= rounded ? '★' : '☆';
-    return stars;
-  }
+  protected readonly getRatingStars = getRatingStars;
 }

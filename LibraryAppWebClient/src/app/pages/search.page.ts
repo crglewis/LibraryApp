@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { Book } from '../models';
 import { NavComponent } from '../components/nav.component';
+import { getRatingStars } from '../utils';
 
 @Component({
   selector: 'app-search',
@@ -64,10 +65,5 @@ export class SearchPage implements OnInit {
     return text.length > length ? text.slice(0, length) + '…' : text;
   }
 
-  getRatingStars(rating?: number): string {
-    const rounded = Math.round(rating || 0);
-    let stars = '';
-    for (let i = 1; i <= 5; i++) stars += i <= rounded ? '★' : '☆';
-    return stars;
-  }
+  protected readonly getRatingStars = getRatingStars;
 }

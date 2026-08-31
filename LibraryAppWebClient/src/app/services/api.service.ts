@@ -3,16 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { User, Book, Review, Booking } from '../models';
+import { computeAverageRating } from '../utils';
 
 const API_BASE_URL = '/api';
 const USER_STORAGE_KEY = 'libraryUser';
 
 function withAverageRating(book: Book): Book {
-  const reviews = book.reviews ?? [];
-  const averageRating = reviews.length
-    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-    : undefined;
-  return { ...book, averageRating };
+  return { ...book, averageRating: computeAverageRating(book.reviews ?? []) };
 }
 
 @Injectable({ providedIn: 'root' })
