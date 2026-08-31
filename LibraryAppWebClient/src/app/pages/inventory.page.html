@@ -1,0 +1,62 @@
+<app-nav></app-nav>
+
+<div class="inventory-page">
+  <div class="inventory-header">
+    <h1 class="page-title">Inventory Management</h1>
+    <button (click)="backToDashboard()" class="btn-secondary">Back to Dashboard</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading library inventory...</div>
+
+  <div *ngIf="!isLoading" class="inventory-dashboard">
+    <div class="view-tabs">
+      <button (click)="switchView('list')" [class.active]="viewType === 'list'" class="view-tab">Book List</button>
+      <button (click)="switchView('form')" [class.active]="viewType === 'form'" class="view-tab">Add / Edit Book</button>
+    </div>
+
+    <div *ngIf="viewType === 'list'" class="book-list-section">
+      <h2>Books in Inventory ({{ books.length }} Total)</h2>
+
+      <div class="book-list-table">
+        <table>
+          <thead>
+            <tr><th>Title</th><th>Author</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let book of books">
+              <td>{{ book.title }}</td>
+              <td>{{ book.author }}</td>
+              <td><span class="status-pill" [class.available]="book.isAvailable">{{ book.isAvailable ? 'Available' : 'Checked Out' }}</span></td>
+              <td class="actions-cell">
+                <button (click)="editBook(book)" class="btn-secondary btn-sm">Edit</button>
+                <button class="btn-danger btn-sm" (click)="deleteBook(book)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="books.length === 0" class="empty-state">
+        No books in inventory yet. Use the form to add your first book!
+      </div>
+    </div>
+
+    <div *ngIf="viewType === 'form'" class="add-edit-form">
+      <h2>{{ bookForm.id ? 'Edit Book' : 'Add New Book' }}</h2>
+      <form (ngSubmit)="saveBook()" class="book-form">
+        <input [(ngModel)]="bookForm.title" name="title" placeholder="Title (required)" required type="text" />
+        <input [(ngModel)]="bookForm.author" name="author" placeholder="Author (required)" required type="text" />
+        <textarea [(ngModel)]="bookForm.description" name="description" rows="4" placeholder="Description"></textarea>
+        <input [(ngModel)]="bookForm.coverImage" name="coverImage" placeholder="Cover Image URL" />
+        <div class="form-grid">
+          <input [(ngModel)]="bookForm.publisher" name="publisher" placeholder="Publisher" />
+          <input [(ngModel)]="bookForm.publicationDate" name="publicationDate" type="date" placeholder="Publication Date" />
+          <input [(ngModel)]="bookForm.category" name="category" placeholder="Category" />
+          <input [(ngModel)]="bookForm.isbn" name="isbn" placeholder="ISBN" />
+          <input [(ngModel)]="bookForm.pageCount" name="pageCount" type="number" min="1" placeholder="Page Count" />
+        </div>
+        <button class="btn-primary book-form-btn" type="submit">{{ bookForm.id ? 'Update Book' : 'Add New Book' }}</button>
+      </form>
+    </div>
+  </div>
+</div>

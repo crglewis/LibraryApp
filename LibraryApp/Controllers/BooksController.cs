@@ -1,16 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using LibraryApp.Data;
 using LibraryApp.Models;
-using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Text;
-
 namespace LibraryApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BooksController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -23,13 +20,13 @@ namespace LibraryApp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return await _context.Books.ToListAsync();
+            return await _context.Books.Include(b => b.Reviews).ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books.Include(b => b.Reviews).FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
             {
@@ -89,31 +86,6 @@ namespace LibraryApp.Controllers
                 .ToListAsync();
 
             return books;
-        }
-
-        [HttpGet("filter")]
-        public async Task<ActionResult<IEnumerable<Book>>> FilterBooks(string author, string availability)
-        {
-            var query = _context.Books.AsQueryable();
-
-            if (!string.IsNullOrEmpty(author))
-            {
-                query = query.Where(b => b.Author.Contains(author));
-            }
-
-            if (!string.IsNullOrEmpty(availability))
-            {
-                if (availability.ToLower() == "true")
-                {
-                    query = query.Where(b => b.IsAvailable);
-                }
-                else if (availability.ToLower() == "false")
-                {
-                    query = query.Where(b => !b.IsAvailable);
-                }
-            }
-
-            return await query.ToListAsync();
         }
     }
 }

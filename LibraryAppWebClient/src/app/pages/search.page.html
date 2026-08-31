@@ -1,0 +1,28 @@
+<app-nav></app-nav>
+
+<div class="search-page">
+  <h1 class="page-title">Search Books</h1>
+
+  <form (ngSubmit)="onSearch()" class="search-container">
+    <input type="text" placeholder="Search by book title..." [(ngModel)]="searchQuery" name="query" />
+    <button type="submit" class="btn-primary">Search</button>
+  </form>
+
+  <div *ngIf="loading" class="loading">Searching…</div>
+
+  <div class="results-section" *ngIf="!loading && results.length > 0">
+    <h2>{{ results.length }} Books Found</h2>
+    <ul class="book-list-card">
+      <li *ngFor="let book of results">
+        <a (click)="goToBook(book.id)" class="list-book">{{ book.title }} — {{ book.author }}</a>
+        <p>{{ book.description ? truncate(book.description, 80) : 'No description' }}</p>
+        <span class="status-badge" [class.available]="book.isAvailable">{{ book.isAvailable ? 'Available' : 'Checked Out' }}</span>
+        <span class="rating">{{ getRatingStars(book.averageRating) }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="!loading && searched && results.length === 0" class="no-search">
+    No books found matching your query.
+  </div>
+</div>

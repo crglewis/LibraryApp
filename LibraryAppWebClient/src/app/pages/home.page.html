@@ -1,0 +1,46 @@
+<app-nav></app-nav>
+
+<div class="hero-banner">
+  <div class="banner-content">
+    <h2>Welcome to the Library</h2>
+    <p>Borrow books, expand your knowledge, and discover new worlds.</p>
+    <button routerLink="/browse/books" class="btn-primary hero-btn">Explore Collection</button>
+  </div>
+</div>
+
+<section class="page-section featured-books-section">
+  <h2 class="section-title">Featured Books</h2>
+
+  <div class="book-grid" *ngIf="featuredBooks.length > 0">
+    <div class="book-card" *ngFor="let book of featuredBooks" (click)="goToBookDetail(book.id)">
+      <div class="book-cover" [class.has-image]="book.coverImage" [style.background-image]="book.coverImage ? 'url(' + book.coverImage + ')' : null">
+        <span *ngIf="!book.coverImage" class="cover-label">COVER</span>
+      </div>
+
+      <div class="book-body">
+        <h3 class="book-title">{{ book.title }}</h3>
+        <p class="book-author">{{ book.author }}</p>
+        <p *ngIf="book.description" class="book-description">{{ truncate(book.description, 90) }}</p>
+
+        <div class="book-meta">
+          <span *ngIf="book.publisher" class="meta-item">Publisher: {{ book.publisher }}</span>
+          <span *ngIf="book.category" class="meta-item">{{ book.category }}</span>
+        </div>
+
+        <div *ngIf="book.averageRating !== undefined" class="rating-value">
+          {{ book.averageRating!.toFixed(1) }} ★ average
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && featuredBooks.length === 0" class="no-data">No featured books available at the moment.</div>
+</section>
+
+<div class="search-section">
+  <h2>Quick Search</h2>
+  <form (ngSubmit)="onSearch()" class="search-form">
+    <input type="text" placeholder="Search books by title..." [(ngModel)]="searchQuery" name="query" />
+    <button type="submit" class="btn-secondary">Search</button>
+  </form>
+</div>

@@ -1,0 +1,42 @@
+<app-nav></app-nav>
+
+<div class="checkout-page">
+  <h1 class="page-header">Check Out a Book</h1>
+
+  <div *ngIf="loading" class="loading">Loading…</div>
+
+  <div class="checkout-container" *ngIf="!loading && book">
+    <div class="card success-card" *ngIf="confirmation">
+      <h2>Success!</h2>
+      <p>You have successfully checked out <span class="book-title">{{ book.title }}</span>.</p>
+      <ul class="checkout-details">
+        <li><strong>Due Date:</strong> {{ confirmation.dueDate | date }} <em>(5 days from today)</em></li>
+        <li>Status: <span class="status-badge">Checked Out</span></li>
+      </ul>
+      <button routerLink="/home" class="btn-primary">Return to Home</button>
+    </div>
+
+    <div class="card checkout-form" *ngIf="!confirmation">
+      <h3>Borrow this book?</h3>
+      <p class="book-title">{{ book.title }}</p>
+      <p class="book-author">by {{ book.author }}</p>
+
+      <div *ngIf="!book.isAvailable" class="error-message">This book is currently checked out.</div>
+      <div *ngIf="currentUser?.role !== 'Customer'" class="error-message">Only customers can check out books.</div>
+      <small *ngIf="error" class="error-message">{{ error }}</small>
+
+      <button
+        *ngIf="book.isAvailable && currentUser?.role === 'Customer'"
+        (click)="confirmCheckout()"
+        class="btn-primary"
+      >Confirm Checkout (5-day loan)</button>
+    </div>
+  </div>
+
+  <div *ngIf="!currentUser" class="checkout-container">
+    <div class="card checkout-form">
+      <div class="error-message">Log in as a Customer to check out books.</div>
+      <a routerLink="/login" class="btn-primary">Login Now</a>
+    </div>
+  </div>
+</div>

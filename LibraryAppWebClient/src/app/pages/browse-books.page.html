@@ -1,0 +1,51 @@
+<app-nav></app-nav>
+
+<div class="browse-container">
+  <h1 class="page-title">Browse the Catalog</h1>
+  <p class="page-subtitle">Search across every title, or filter by author and availability.</p>
+
+  <form (ngSubmit)="applyFilters()" class="filter-bar">
+    <input placeholder="Search titles, authors, ISBN..." [(ngModel)]="searchQuery" name="query" (ngModelChange)="applyFilters()" class="search-input" />
+
+    <div class="filter-grid">
+      <select [(ngModel)]="authorFilter" name="author" (change)="applyFilters()">
+        <option value="">All Authors</option>
+        <option *ngFor="let author of uniqueAuthors" [value]="author">{{ author }}</option>
+      </select>
+
+      <select [(ngModel)]="availabilityFilter" name="availability" (change)="applyFilters()">
+        <option value="">All Availability</option>
+        <option value="available">Available Only</option>
+        <option value="unavailable">Checked Out Only</option>
+      </select>
+
+      <select [(ngModel)]="sortBy" name="sort" (change)="applyFilters()">
+        <option value="">Sort: Default</option>
+        <option value="title">Sort: Title</option>
+        <option value="author">Sort: Author</option>
+        <option value="averageRating">Sort: Rating</option>
+      </select>
+    </div>
+  </form>
+
+  <p class="results-label">{{ filteredBooks.length }} title{{ filteredBooks.length === 1 ? '' : 's' }}</p>
+
+  <div class="books-grid">
+    <div *ngFor="let book of filteredBooks" class="book-card" (click)="goToBookDetail(book.id)">
+      <img *ngIf="book.coverImage" [src]="book.coverImage" class="cover-img" />
+      <div *ngIf="!book.coverImage" class="cover-placeholder">
+        <span class="cover-label">COVER</span>
+      </div>
+      <div class="book-body">
+        <h3 class="book-title">{{ book.title }}</h3>
+        <p class="book-author">{{ book.author }}</p>
+        <div class="book-row">
+          <span class="stars">{{ getRatingStars(book.averageRating) }}</span>
+          <span class="avail" [class.available]="book.isAvailable">{{ book.isAvailable ? 'Available' : 'Checked Out' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && filteredBooks.length === 0" class="no-books">No books found matching your criteria.</div>
+</div>

@@ -1,23 +1,34 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using LibraryApp.Data;
 using LibraryApp.Models;
-using System;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BookingsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BookingsController(ApplicationDbContext context)
+        public BookingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Librarian")]
+        public async Task<ActionResult<IEnumerable<Booking>>> GetAllBookings()
+        {
+            return await _context.Bookings
+                .Include(b => b.Book)
+                .OrderByDescending(b => b.CheckoutDate)
+                .ToListAsync();
         }
 
         [HttpPost]
@@ -38,7 +49,7 @@ namespace LibraryApp.Controllers
             var booking = new Booking
             {
                 BookId = request.BookId,
-                UserId = request.UserId,
+                UserId = _userManager.GetUserId(User)!,
                 CheckoutDate = DateTime.UtcNow,
                 DueDate = DateTime.UtcNow.AddDays(5),
                 IsReturned = false
@@ -46,7 +57,7 @@ namespace LibraryApp.Controllers
 
             _context.Bookings.Add(booking);
             book.IsAvailable = false;
-            
+
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Book checked out successfully.", DueDate = booking.DueDate });
@@ -54,16 +65,16 @@ namespace LibraryApp.Controllers
 
         [HttpPost("returns")]
         [Authorize(Roles = "Librarian")]
-        public async Task<ActionResult> ReturnBook(int bookId)
+        public async Task<ActionResult> ReturnBook([FromBody] ReturnRequest request)
         {
-            var book = await _context.Books.FindAsync(bookId);
+            var book = await _context.Books.FindAsync(request.BookId);
             if (book == null)
             {
                 return NotFound("Book not found.");
             }
 
             var booking = await _context.Bookings
-                .FirstOrDefaultAsync(b => b.BookId == bookId && b.IsReturned == false);
+                .FirstOrDefaultAsync(b => b.BookId == request.BookId && b.IsReturned == false);
 
             if (booking == null)
             {

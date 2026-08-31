@@ -1,0 +1,71 @@
+/* ======================================================
+ * Library Demo App - Global Styles
+ * "Willowmere" theme: calm, scholarly palette (OKLCH tokens),
+ * Lora for headings, Inter for body/UI.
+ * ========================================================*/
+
+:root {
+  --bg: oklch(0.97 0.01 60);
+  --surface: oklch(0.995 0.004 60);
+  --ink: oklch(0.24 0.02 50);
+  --ink-soft: oklch(0.45 0.02 50);
+  --ink-mute: oklch(0.55 0.02 50);
+  --border: oklch(0.88 0.015 60);
+
+  --brick: oklch(0.45 0.1 30);
+  --brick-hover: oklch(0.38 0.1 30);
+  --brick-text: oklch(0.99 0.003 30);
+  --brick-tint: oklch(0.45 0.1 30 / 0.14);
+
+  --olive: oklch(0.55 0.09 95);
+  --olive-dark: oklch(0.42 0.08 95);
+  --olive-tint: oklch(0.55 0.09 95 / 0.15);
+
+  --success: oklch(0.5 0.1 145);
+  --success-tint: oklch(0.5 0.1 145 / 0.14);
+  --error-red: oklch(0.5 0.15 30);
+
+  --font-serif: 'Lora', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-pill: 20px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+h1, h2, h3 { font-family: var(--font-serif); }
+
+a { color: var(--brick); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--brick-hover); text-decoration: underline; }
+
+::selection { background: var(--brick-tint); }
+
+.btn-primary, .btn-secondary {
+  display: inline-block;
+  padding: 0.75rem 1.375rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.btn-primary { background: var(--brick); color: var(--brick-text); }
+.btn-primary:hover:not(:disabled) { background: var(--brick-hover); box-shadow: 0 4px 12px oklch(0.45 0.1 30 / 0.25); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-secondary { background: transparent; color: var(--ink-soft); border: 1px solid var(--border); }
+.btn-secondary:hover:not(:disabled) { border-color: var(--brick); color: var(--brick); }

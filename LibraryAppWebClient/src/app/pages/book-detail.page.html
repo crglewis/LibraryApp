@@ -1,0 +1,69 @@
+<app-nav></app-nav>
+
+<div class="book-detail-container">
+  <a routerLink="/browse/books" class="back-link">&larr; Back to Catalog</a>
+
+  <div *ngIf="loading" class="loading">Loading…</div>
+
+  <div class="detail-layout" *ngIf="book && !loading">
+    <div
+      class="cover-container"
+      [class.has-image]="book.coverImage"
+      [style.background-image]="book.coverImage ? 'url(' + book.coverImage + ')' : null"
+    >
+      <span *ngIf="!book.coverImage" class="cover-label">COVER</span>
+    </div>
+
+    <div class="book-details-info">
+      <div class="category-pill" *ngIf="book.category">{{ book.category }}</div>
+
+      <h1>{{ book.title }}</h1>
+      <div class="author-line">by {{ book.author }}</div>
+
+      <div class="rating-line" *ngIf="averageRating !== null">
+        {{ getRatingStars(averageRating!) }} <span class="rating-count">{{ averageRating!.toFixed(1) }}/5 ({{ reviews.length }} reviews)</span>
+      </div>
+
+      <div class="action-row">
+        <span class="avail-pill" [class.available]="book.isAvailable">{{ book.isAvailable ? 'Available now' : 'Checked out' }}</span>
+
+        <button
+          *ngIf="book.isAvailable && currentUser?.role === 'Customer'"
+          (click)="goToCheckout()"
+          type="button"
+          class="btn-primary btn-checkout"
+        >Check Out</button>
+        <button *ngIf="!book.isAvailable" disabled class="btn-secondary unavailable-btn">Unavailable</button>
+      </div>
+
+      <p class="description">{{ book.description }}</p>
+
+      <div class="meta-grid">
+        <ng-container *ngIf="book.publisher"><span class="meta-label">Publisher</span><span>{{ book.publisher }}</span></ng-container>
+        <ng-container *ngIf="book.publicationDate"><span class="meta-label">Published</span><span>{{ book.publicationDate | date }}</span></ng-container>
+        <ng-container *ngIf="book.pageCount"><span class="meta-label">Pages</span><span>{{ book.pageCount }}</span></ng-container>
+        <ng-container *ngIf="book.isbn"><span class="meta-label">ISBN</span><span>{{ book.isbn }}</span></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="reviews-wrap" *ngIf="book && !loading">
+    <app-review-form *ngIf="canReview" [book]="book" (reviewSubmitted)="onReviewSubmitted()"></app-review-form>
+
+    <section class="reviews-section">
+      <h2>Reviews ({{ reviews.length }})</h2>
+
+      <p class="no-reviews" *ngIf="reviews.length === 0">No reviews yet. Be the first to leave a review!</p>
+
+      <div class="reviews-list" *ngIf="reviews.length > 0">
+        <div class="review-card" *ngFor="let review of reviews">
+          <div class="review-header">
+            <span class="review-author">{{ review.userName }}</span>
+          </div>
+          <div class="review-rating">{{ getRatingStars(review.rating) }}</div>
+          <p class="review-message">{{ review.message }}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

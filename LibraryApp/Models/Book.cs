@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace LibraryApp.Models
 {
@@ -28,6 +28,7 @@ namespace LibraryApp.Models
         public string Category { get; set; } = string.Empty;
 
         [Required]
+        [JsonPropertyName("isbn")] // default camelCase policy would otherwise produce "iSBN"
         public string ISBN { get; set; } = string.Empty;
 
         public int PageCount { get; set; }

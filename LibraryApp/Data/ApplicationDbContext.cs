@@ -25,7 +25,7 @@ namespace LibraryApp.Data
         {
             if (!Books.Any())
             {
-                var books = BookGenerator.Generate(10);
+                var books = BookGenerator.Generate(30);
 
                 Books.AddRange(books);
                 SaveChanges();

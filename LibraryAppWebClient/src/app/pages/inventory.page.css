@@ -1,0 +1,62 @@
+.inventory-page { max-width: 1200px; margin: 0 auto; padding: 40px; }
+
+.inventory-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 28px; }
+
+.page-title { font-family: var(--font-serif); font-weight: 600; font-size: 34px; margin: 0; color: var(--ink); }
+
+.loading { text-align: center; padding: 3rem; color: var(--ink-mute); }
+
+.inventory-dashboard { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.view-tabs { display: flex; gap: 0.5rem; }
+.view-tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  transition: all 0.2s;
+}
+.view-tab:hover { border-color: var(--brick); color: var(--brick); }
+.view-tab.active { background: var(--brick); color: var(--brick-text); border-color: var(--brick); }
+
+.book-list-section h2, .add-edit-form h2 { font-family: var(--font-serif); color: var(--ink); font-size: 1.35rem; margin-bottom: 0.5rem; }
+
+.book-list-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.book-list-table table { width: 100%; border-collapse: collapse; }
+.book-list-table th, .book-list-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+.book-list-table th { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); }
+
+.status-pill { padding: 4px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; background: oklch(0.55 0.02 50 / 0.12); color: var(--ink-soft); }
+.status-pill.available { background: var(--success-tint); color: var(--success); }
+
+.actions-cell { display: flex; gap: 0.5rem; }
+.btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
+.btn-danger { background: var(--brick); color: var(--brick-text); border: none; padding: 0.4rem 0.9rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.btn-danger:hover { background: var(--brick-hover); }
+
+.empty-state { text-align: center; padding: 4rem; color: var(--ink-mute); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); font-weight: 600; }
+
+.add-edit-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2rem; }
+.book-form { display: flex; flex-direction: column; gap: 0.75rem; max-width: 800px; margin: 0 auto; }
+.book-form input, .book-form textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--surface);
+}
+.book-form input:focus, .book-form textarea:focus { outline: none; border-color: var(--brick); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.book-form-btn { margin-top: 0.5rem; }
+
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+}

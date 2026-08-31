@@ -1,0 +1,21 @@
+<header class="site-header">
+  <a routerLink="/home" class="brand">
+    <span class="brand-title">Library Demo App</span>
+    <span class="brand-subtitle">Public Library System</span>
+  </a>
+
+  <nav class="tabs">
+    <a routerLink="/home" routerLinkActive="active" class="tab">Home</a>
+    <a routerLink="/browse/books" routerLinkActive="active" class="tab">Browse</a>
+    <a routerLink="/search" routerLinkActive="active" class="tab">Search</a>
+    <ng-container *ngIf="currentUser?.role === 'Librarian'">
+      <a routerLink="/admin" routerLinkActive="active" class="tab">Dashboard</a>
+      <a routerLink="/inventory" routerLinkActive="active" class="tab">Manage Books</a>
+    </ng-container>
+  </nav>
+
+  <div class="account" *ngIf="currentUser">
+    <span class="user-email">{{ currentUser.email }}</span>
+    <button (click)="logout()" class="btn-logout" type="button">Logout</button>
+  </div>
+</header>

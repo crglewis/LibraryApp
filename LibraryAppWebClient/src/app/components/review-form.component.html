@@ -1,0 +1,31 @@
+<div class="review-form-card" *ngIf="book">
+  <div class="form-title">Write a review</div>
+
+  <div class="rating-section">
+    <label>Your Rating</label>
+    <div class="star-rating">
+      <button
+        type="button"
+        *ngFor="let star of [1, 2, 3, 4, 5]"
+        (click)="rating = star"
+        class="star"
+        [class.selected]="star <= rating"
+      >{{ star <= rating ? '★' : '☆' }}</button>
+    </div>
+  </div>
+
+  <textarea
+    [(ngModel)]="message"
+    name="message"
+    placeholder="Share your thoughts on this book... (at least 5 characters)"
+    maxlength="500"
+    rows="4"
+  ></textarea>
+
+  <button
+    class="btn-primary"
+    type="button"
+    (click)="submitReview()"
+    [disabled]="message.trim().length < 5 || submitting"
+  >{{ submitting ? 'Submitting…' : 'Post Review' }}</button>
+</div>
