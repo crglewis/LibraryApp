@@ -4,38 +4,12 @@ A complete full-stack web application for managing a library book inventory syst
 
 ## 📋 Overview
 
-This project demonstrates proficiency in:
+This project implements:
 - .NET Web API development (targets .NET 10, satisfying the .NET 8+ requirement)
 - ASP.NET Core Identity & Role-based access control
 - Entity Framework Core with SQL Server
 - Angular SPA (Single Page Application) development
 - Customer and Librarian roles with different permissions
-
-## 🎯 Features
-
-### Customer Features:
-- ✅ Browse all available books
-- ✅ Search books by title (partial match)
-- ✅ Filter books by author and availability status
-- ✅ View detailed book information (Publisher, Publication Date, Category, ISBN, Page Count)
-- ✅ Check out books for 5-day loan period
-- ✅ Leave customer reviews with star ratings
-- ✅ Track personal book history
-
-### Librarian Features:
-- ✅ Add new books to inventory
-- ✅ Edit existing book information
-- ✅ Remove/delete books from inventory
-- ✅ Mark books as returned
-- ✅ View all checked-out books and due dates
-- ✅ Manage return requests
-
-### Bonus Features:
-- ✅ Librarian dashboard listing all checked-out books and due dates (see Librarian Features above)
-- ✅ Angular Material used on the Inventory Management page (form fields, buttons, table, snackbar notifications)
-- ✅ xUnit unit tests for the API (`LibraryApp.Tests`) covering book CRUD/search and checkout/return business logic
-- ✅ [Database diagram](docs/database-diagram.md) (Mermaid ERD)
-- ✅ Real-time book availability via SignalR — when a book is checked out or returned, every connected client's Browse and Book Detail pages update instantly without a refresh
 
 ## 🚀 Technology Stack
 
