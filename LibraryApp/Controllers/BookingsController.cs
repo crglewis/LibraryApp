@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using LibraryApp.Data;
+using LibraryApp.Hubs;
 using LibraryApp.Models;
 
 namespace LibraryApp.Controllers
@@ -14,11 +16,13 @@ namespace LibraryApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHubContext<BookHub> _bookHub;
 
-        public BookingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public BookingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IHubContext<BookHub> bookHub)
         {
             _context = context;
             _userManager = userManager;
+            _bookHub = bookHub;
         }
 
         [HttpGet]
@@ -60,6 +64,8 @@ namespace LibraryApp.Controllers
 
             await _context.SaveChangesAsync();
 
+            await _bookHub.Clients.All.SendAsync("BookAvailabilityChanged", new { bookId = book.Id, isAvailable = false });
+
             return Ok(new { Message = "Book checked out successfully.", DueDate = booking.DueDate });
         }
 
@@ -86,6 +92,8 @@ namespace LibraryApp.Controllers
             booking.ReturnDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            await _bookHub.Clients.All.SendAsync("BookAvailabilityChanged", new { bookId = book.Id, isAvailable = true });
 
             return Ok(new { Message = "Book returned successfully." });
         }

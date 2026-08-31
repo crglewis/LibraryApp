@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { User, Book, Review, Booking } from '../models';
 import { computeAverageRating } from '../utils';
+import { SignalrService } from './signalr.service';
 
 const API_BASE_URL = '/api';
 const USER_STORAGE_KEY = 'libraryUser';
@@ -15,6 +16,7 @@ function withAverageRating(book: Book): Book {
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
+  private signalrService = inject(SignalrService);
   private currentUser: User | null = this.readStoredUser();
 
   private readStoredUser(): User | null {
@@ -47,6 +49,7 @@ export class ApiService {
   /** Called by the auth interceptor when the server rejects our session cookie. */
   clearUser(): void {
     this.storeUser(null);
+    this.signalrService.disconnect();
   }
 
   login(email: string, password: string): Observable<User> {
@@ -69,7 +72,10 @@ export class ApiService {
 
   logout(): Observable<void> {
     return this.http.post<void>(`${API_BASE_URL}/auth/logout`, {}).pipe(
-      tap(() => this.storeUser(null))
+      tap(() => {
+        this.storeUser(null);
+        this.signalrService.disconnect();
+      })
     );
   }
 

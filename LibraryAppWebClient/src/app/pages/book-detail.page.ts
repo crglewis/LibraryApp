@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { ApiService } from '../services/api.service';
+import { SignalrService } from '../services/signalr.service';
 import { Book, Review, User } from '../models';
 import { ReviewFormComponent } from '../components/review-form.component';
 import { NavComponent } from '../components/nav.component';
@@ -17,16 +19,19 @@ import { computeAverageRating, getRatingStars } from '../utils';
   templateUrl: './book-detail.page.html',
   styleUrls: ['./book-detail.page.css'],
 })
-export class BookDetailPage implements OnInit {
+export class BookDetailPage implements OnInit, OnDestroy {
   book: Book | null = null;
   reviews: Review[] = [];
   loading = true;
   currentUser: User | null = null;
 
+  private availabilitySubscription?: Subscription;
+
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private signalrService: SignalrService
   ) {}
 
   ngOnInit(): void {
@@ -39,6 +44,17 @@ export class BookDetailPage implements OnInit {
     this.currentUser = this.apiService.getUser();
     this.loadBook(id);
     this.loadReviews(id);
+
+    this.signalrService.connect();
+    this.availabilitySubscription = this.signalrService.bookAvailabilityChanged$.subscribe((event) => {
+      if (this.book && event.bookId === this.book.id) {
+        this.book = { ...this.book, isAvailable: event.isAvailable };
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.availabilitySubscription?.unsubscribe();
   }
 
   loadBook(id: number): void {

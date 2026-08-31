@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ApiService } from '../services/api.service';
+import { SignalrService } from '../services/signalr.service';
 import { Book } from '../models';
 import { NavComponent } from '../components/nav.component';
 import { getRatingStars } from '../utils';
@@ -17,7 +19,7 @@ import { getRatingStars } from '../utils';
   templateUrl: './browse-books.page.html',
   styleUrls: ['./browse-books.page.css'],
 })
-export class BrowseBooksPage implements OnInit {
+export class BrowseBooksPage implements OnInit, OnDestroy {
   books: Book[] = [];
   filteredBooks: Book[] = [];
   loading = true;
@@ -25,12 +27,31 @@ export class BrowseBooksPage implements OnInit {
   searchQuery = '';
   authorFilter = '';
   availabilityFilter: '' | 'available' | 'unavailable' = '';
-  sortBy: '' | 'title' | 'author' | 'averageRating' = '';
+  sortBy: '' | 'title' | 'author' | 'availability' | 'averageRating' = '';
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  private availabilitySubscription?: Subscription;
+
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private signalrService: SignalrService
+  ) {}
 
   ngOnInit(): void {
     this.loadBooks();
+
+    this.signalrService.connect();
+    this.availabilitySubscription = this.signalrService.bookAvailabilityChanged$.subscribe((event) => {
+      const book = this.books.find((b) => b.id === event.bookId);
+      if (book) {
+        book.isAvailable = event.isAvailable;
+        this.applyFilters();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.availabilitySubscription?.unsubscribe();
   }
 
   loadBooks(): void {
@@ -62,6 +83,8 @@ export class BrowseBooksPage implements OnInit {
       result = [...result].sort((a, b) => a.title.localeCompare(b.title));
     } else if (this.sortBy === 'author') {
       result = [...result].sort((a, b) => a.author.localeCompare(b.author));
+    } else if (this.sortBy === 'availability') {
+      result = [...result].sort((a, b) => Number(b.isAvailable) - Number(a.isAvailable));
     } else if (this.sortBy === 'averageRating') {
       result = [...result].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
     }

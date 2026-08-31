@@ -18,7 +18,6 @@ namespace LibraryApp.Models
 
         public string Description { get; set; } = string.Empty;
 
-        [Required]
         public string CoverImage { get; set; } = string.Empty;
 
         public string Publisher { get; set; } = string.Empty;
@@ -27,7 +26,6 @@ namespace LibraryApp.Models
 
         public string Category { get; set; } = string.Empty;
 
-        [Required]
         [JsonPropertyName("isbn")] // default camelCase policy would otherwise produce "iSBN"
         public string ISBN { get; set; } = string.Empty;
 

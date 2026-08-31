@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using LibraryApp.Data;
+using LibraryApp.Hubs;
 using LibraryApp.Models;
 using System.Text.Json.Serialization;
 
@@ -62,6 +63,7 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -84,5 +86,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<BookHub>("/hubs/books");
 
 app.Run();
