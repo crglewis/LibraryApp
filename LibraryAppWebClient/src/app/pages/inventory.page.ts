@@ -82,12 +82,23 @@ export class InventoryPage implements OnInit {
       description: book.description || '',
       coverImage: book.coverImage || '',
       publisher: book.publisher || '',
-      publicationDate: book.publicationDate || '',
+      publicationDate: book.publicationDate ? book.publicationDate.slice(0, 10) : '',
       category: book.category || '',
       isbn: book.isbn || '',
       pageCount: book.pageCount ?? null,
     };
     this.viewType = 'form';
+  }
+
+  // The backend's PublicationDate/PageCount fields are non-nullable, so posting
+  // the form's blank-string/null placeholders fails JSON deserialization before
+  // the request even reaches model validation. Omit them when unset instead.
+  private buildPayload(): Partial<Book> {
+    const { publicationDate, pageCount, ...rest } = this.bookForm;
+    const payload: Partial<Book> = { ...rest } as unknown as Partial<Book>;
+    if (publicationDate) payload.publicationDate = publicationDate;
+    if (pageCount !== null) payload.pageCount = pageCount;
+    return payload;
   }
 
   saveBook(): void {
@@ -96,17 +107,25 @@ export class InventoryPage implements OnInit {
       return;
     }
 
+    const payload = this.buildPayload();
+
     if (this.bookForm.id) {
-      this.apiService.updateBook(this.bookForm.id, this.bookForm as unknown as Partial<Book>).subscribe(() => {
-        alert('Book updated successfully');
-        this.switchView('list');
-        this.loadBooks();
+      this.apiService.updateBook(this.bookForm.id, payload).subscribe({
+        next: () => {
+          alert('Book updated successfully');
+          this.switchView('list');
+          this.loadBooks();
+        },
+        error: () => alert('Failed to update book'),
       });
     } else {
-      this.apiService.addBook({ ...this.bookForm, isAvailable: true } as unknown as Partial<Book>).subscribe(() => {
-        alert('New book added');
-        this.switchView('list');
-        this.loadBooks();
+      this.apiService.addBook({ ...payload, isAvailable: true }).subscribe({
+        next: () => {
+          alert('New book added');
+          this.switchView('list');
+          this.loadBooks();
+        },
+        error: () => alert('Failed to add book'),
       });
     }
   }
