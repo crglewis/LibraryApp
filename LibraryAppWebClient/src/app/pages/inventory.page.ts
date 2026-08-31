@@ -2,6 +2,11 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../services/api.service';
 import { Book } from '../models';
 import { NavComponent } from '../components/nav.component';
@@ -39,7 +44,16 @@ function emptyForm(): BookFormModel {
   // Angular 22 defaults components to OnPush. This component keeps state in plain
   // mutable fields updated from RxJS subscribe callbacks, so it needs eager checking.
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, NavComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NavComponent,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatSnackBarModule,
+  ],
   templateUrl: './inventory.page.html',
   styleUrls: ['./inventory.page.css'],
 })
@@ -48,8 +62,9 @@ export class InventoryPage implements OnInit {
   isLoading = false;
   viewType: 'list' | 'form' = 'list';
   bookForm: BookFormModel = emptyForm();
+  readonly displayedColumns = ['title', 'author', 'status', 'actions'];
 
-  constructor(public apiService: ApiService, private router: Router) {}
+  constructor(public apiService: ApiService, private router: Router, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.loadBooks();
@@ -64,9 +79,13 @@ export class InventoryPage implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        alert('Failed to load books');
+        this.notify('Failed to load books');
       },
     });
+  }
+
+  private notify(message: string): void {
+    this.snackBar.open(message, 'Dismiss', { duration: 4000 });
   }
 
   switchView(view: 'list' | 'form'): void {
@@ -103,7 +122,7 @@ export class InventoryPage implements OnInit {
 
   saveBook(): void {
     if (!this.bookForm.title.trim() || !this.bookForm.author.trim()) {
-      alert('Title and author are required');
+      this.notify('Title and author are required');
       return;
     }
 
@@ -112,20 +131,20 @@ export class InventoryPage implements OnInit {
     if (this.bookForm.id) {
       this.apiService.updateBook(this.bookForm.id, payload).subscribe({
         next: () => {
-          alert('Book updated successfully');
+          this.notify('Book updated successfully');
           this.switchView('list');
           this.loadBooks();
         },
-        error: () => alert('Failed to update book'),
+        error: () => this.notify('Failed to update book'),
       });
     } else {
       this.apiService.addBook({ ...payload, isAvailable: true }).subscribe({
         next: () => {
-          alert('New book added');
+          this.notify('New book added');
           this.switchView('list');
           this.loadBooks();
         },
-        error: () => alert('Failed to add book'),
+        error: () => this.notify('Failed to add book'),
       });
     }
   }
@@ -133,6 +152,7 @@ export class InventoryPage implements OnInit {
   deleteBook(book: Book): void {
     if (!confirm(`Are you sure you want to delete "${book.title}"?`)) return;
     this.apiService.deleteBook(book.id).subscribe(() => {
+      this.notify(`"${book.title}" deleted`);
       this.loadBooks();
     });
   }

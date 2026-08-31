@@ -1,0 +1,72 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+
+  // `red`/`orange` are the closest built-in M3 palettes to this app's warm brick/olive
+  // hues (see src/styles.css). They seed every derived token Material generates
+  // (hover/pressed states, elevation tint, etc.) so nothing falls back to blue even
+  // where we don't override a token explicitly below.
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$red-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Inter,
+      density: 0,
+    )
+  );
+
+  // Pin the handful of system tokens that Angular Material components actually read
+  // for visible surfaces to this app's own design tokens (src/styles.css), so the
+  // "Willowmere" palette carries through instead of Material's default color scale.
+  --mat-sys-primary: var(--brick);
+  --mat-sys-on-primary: var(--brick-text);
+  --mat-sys-primary-container: var(--brick-tint);
+  --mat-sys-on-primary-container: var(--brick);
+  --mat-sys-surface-tint: var(--brick);
+  --mat-sys-inverse-primary: oklch(0.75 0.08 30);
+
+  --mat-sys-secondary: var(--olive-dark);
+  --mat-sys-on-secondary: var(--brick-text);
+  --mat-sys-secondary-container: var(--olive-tint);
+  --mat-sys-on-secondary-container: var(--olive-dark);
+
+  --mat-sys-error: var(--error-red);
+  --mat-sys-on-error: var(--brick-text);
+  --mat-sys-error-container: oklch(0.5 0.15 30 / 0.14);
+  --mat-sys-on-error-container: var(--error-red);
+
+  --mat-sys-background: var(--bg);
+  --mat-sys-on-background: var(--ink);
+  --mat-sys-surface: var(--surface);
+  --mat-sys-surface-dim: var(--surface);
+  --mat-sys-surface-bright: var(--surface);
+  --mat-sys-surface-container: var(--surface);
+  --mat-sys-surface-container-low: var(--surface);
+  --mat-sys-surface-container-lowest: var(--surface);
+  --mat-sys-surface-container-high: var(--bg);
+  --mat-sys-surface-container-highest: var(--bg);
+  --mat-sys-on-surface: var(--ink);
+  --mat-sys-on-surface-variant: var(--ink-mute);
+  --mat-sys-outline: var(--border);
+  --mat-sys-outline-variant: var(--border);
+
+  --mat-sys-inverse-surface: var(--ink);
+  --mat-sys-inverse-on-surface: var(--surface);
+
+  // Design theme radii: 8px inputs/buttons, 10px cards. Material's default M3 shape
+  // for filled/outlined/text buttons is a full stadium ("corner-full"); this app's
+  // buttons are rectangular with an 8px radius everywhere else, so match that here.
+  --mat-sys-corner-full: var(--radius-sm);
+  --mat-sys-corner-extra-small: var(--radius-sm);
+  --mat-sys-corner-small: var(--radius-sm);
+  --mat-sys-corner-medium: var(--radius-md);
+  --mat-sys-corner-large: var(--radius-md);
+}

@@ -3,38 +3,51 @@
 <div class="inventory-page">
   <div class="inventory-header">
     <h1 class="page-title">Inventory Management</h1>
-    <button (click)="backToDashboard()" class="btn-secondary">Back to Dashboard</button>
+    <button mat-stroked-button (click)="backToDashboard()">Back to Dashboard</button>
   </div>
 
   <div *ngIf="isLoading" class="loading">Loading library inventory...</div>
 
   <div *ngIf="!isLoading" class="inventory-dashboard">
     <div class="view-tabs">
-      <button (click)="switchView('list')" [class.active]="viewType === 'list'" class="view-tab">Book List</button>
-      <button (click)="switchView('form')" [class.active]="viewType === 'form'" class="view-tab">Add / Edit Book</button>
+      <button mat-flat-button (click)="switchView('list')" [color]="viewType === 'list' ? 'primary' : undefined">Book List</button>
+      <button mat-flat-button (click)="switchView('form')" [color]="viewType === 'form' ? 'primary' : undefined">Add / Edit Book</button>
     </div>
 
     <div *ngIf="viewType === 'list'" class="book-list-section">
       <h2>Books in Inventory ({{ books.length }} Total)</h2>
 
-      <div class="book-list-table">
-        <table>
-          <thead>
-            <tr><th>Title</th><th>Author</th><th>Status</th><th>Action</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let book of books">
-              <td>{{ book.title }}</td>
-              <td>{{ book.author }}</td>
-              <td><span class="status-pill" [class.available]="book.isAvailable">{{ book.isAvailable ? 'Available' : 'Checked Out' }}</span></td>
-              <td class="actions-cell">
-                <button (click)="editBook(book)" class="btn-secondary btn-sm">Edit</button>
-                <button class="btn-danger btn-sm" (click)="deleteBook(book)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <table mat-table [dataSource]="books" class="book-mat-table">
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Title</th>
+          <td mat-cell *matCellDef="let book">{{ book.title }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="author">
+          <th mat-header-cell *matHeaderCellDef>Author</th>
+          <td mat-cell *matCellDef="let book">{{ book.author }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let book">
+            <span class="status-pill" [class.available]="book.isAvailable">{{ book.isAvailable ? 'Available' : 'Checked Out' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let book">
+            <div class="actions-cell">
+              <button mat-stroked-button (click)="editBook(book)">Edit</button>
+              <button mat-flat-button color="warn" (click)="deleteBook(book)">Delete</button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
 
       <div *ngIf="books.length === 0" class="empty-state">
         No books in inventory yet. Use the form to add your first book!
@@ -44,18 +57,54 @@
     <div *ngIf="viewType === 'form'" class="add-edit-form">
       <h2>{{ bookForm.id ? 'Edit Book' : 'Add New Book' }}</h2>
       <form (ngSubmit)="saveBook()" class="book-form">
-        <input [(ngModel)]="bookForm.title" name="title" placeholder="Title (required)" required type="text" />
-        <input [(ngModel)]="bookForm.author" name="author" placeholder="Author (required)" required type="text" />
-        <textarea [(ngModel)]="bookForm.description" name="description" rows="4" placeholder="Description"></textarea>
-        <input [(ngModel)]="bookForm.coverImage" name="coverImage" placeholder="Cover Image URL" />
+        <mat-form-field appearance="outline">
+          <mat-label>Title</mat-label>
+          <input matInput [(ngModel)]="bookForm.title" name="title" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Author</mat-label>
+          <input matInput [(ngModel)]="bookForm.author" name="author" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea matInput [(ngModel)]="bookForm.description" name="description" rows="4"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Cover Image URL</mat-label>
+          <input matInput [(ngModel)]="bookForm.coverImage" name="coverImage" />
+        </mat-form-field>
+
         <div class="form-grid">
-          <input [(ngModel)]="bookForm.publisher" name="publisher" placeholder="Publisher" />
-          <input [(ngModel)]="bookForm.publicationDate" name="publicationDate" type="date" placeholder="Publication Date" />
-          <input [(ngModel)]="bookForm.category" name="category" placeholder="Category" />
-          <input [(ngModel)]="bookForm.isbn" name="isbn" placeholder="ISBN" />
-          <input [(ngModel)]="bookForm.pageCount" name="pageCount" type="number" min="1" placeholder="Page Count" />
+          <mat-form-field appearance="outline">
+            <mat-label>Publisher</mat-label>
+            <input matInput [(ngModel)]="bookForm.publisher" name="publisher" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Publication Date</mat-label>
+            <input matInput [(ngModel)]="bookForm.publicationDate" name="publicationDate" type="date" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <input matInput [(ngModel)]="bookForm.category" name="category" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>ISBN</mat-label>
+            <input matInput [(ngModel)]="bookForm.isbn" name="isbn" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Page Count</mat-label>
+            <input matInput [(ngModel)]="bookForm.pageCount" name="pageCount" type="number" min="1" />
+          </mat-form-field>
         </div>
-        <button class="btn-primary book-form-btn" type="submit">{{ bookForm.id ? 'Update Book' : 'Add New Book' }}</button>
+
+        <button mat-flat-button color="primary" class="book-form-btn" type="submit">{{ bookForm.id ? 'Update Book' : 'Add New Book' }}</button>
       </form>
     </div>
   </div>

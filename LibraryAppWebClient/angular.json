@@ -24,7 +24,7 @@
               { "glob": "**/*", "input": "public" },
               { "glob": "*.html", "input": "." }
             ],
-            "styles": [ "src/styles.css" ]
+            "styles": ["src/material-theme.scss", "src/styles.css"]
           },
           "configurations": {
             "production": { "budgets": [], "outputHashing": "all" },
@@ -32,7 +32,16 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": { "builder": "@angular/build:dev-server", "options": { "proxyConfig": "proxy.conf.json" }, "configurations": { "production": { "buildTarget": "library-ui:build:production" }, "development": { "buildTarget": "library-ui:build:development" }, "vscodedevelopment": { "buildTarget": "library-ui:build:development" } }, "defaultConfiguration": "development" }
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": { "proxyConfig": "proxy.conf.json" },
+          "configurations": {
+            "production": { "buildTarget": "library-ui:build:production" },
+            "development": { "buildTarget": "library-ui:build:development" },
+            "vscodedevelopment": { "buildTarget": "library-ui:build:development" }
+          },
+          "defaultConfiguration": "development"
+        }
       }
     }
   }
