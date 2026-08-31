@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using LibraryApp.Data;
-using Microsoft.Extensions.DependencyInjection;
 using LibraryApp.Models;
 using System.Text.Json.Serialization;
 
@@ -86,7 +84,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapGet("/", () => "Hello World!");
 
 app.Run();

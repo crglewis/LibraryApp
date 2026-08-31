@@ -31,7 +31,7 @@ export class HomePage implements OnInit {
     this.loading = true;
     this.apiService.getBooks().subscribe({
       next: (books) => {
-        this.featuredBooks = [...books].sort(() => 0.5 - Math.random()).slice(0, 6);
+        this.featuredBooks = [...books].sort(() => 0.5 - Math.random()).slice(0, 5);
         this.loading = false;
       },
       error: () => {
