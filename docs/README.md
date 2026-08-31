@@ -1,11 +1,11 @@
 # Library Demo App - Full Stack Book Management System
 
-A complete full-stack web application for managing a library book inventory system with Angular frontend and .NET 8 backend.
+A complete full-stack web application for managing a library book inventory system with Angular frontend and .NET 10 backend.
 
 ## 📋 Overview
 
 This project demonstrates proficiency in:
-- .NET 8 Web API development
+- .NET Web API development (targets .NET 10, satisfying the .NET 8+ requirement)
 - ASP.NET Core Identity & Role-based access control
 - Entity Framework Core with SQL Server
 - Angular SPA (Single Page Application) development
@@ -39,8 +39,8 @@ This project demonstrates proficiency in:
 
 ## 🚀 Technology Stack
 
-### Backend (.NET 8)
-- .NET 8.0 Web API
+### Backend (.NET 10)
+- .NET 10 Web API (satisfies the .NET 8+ requirement)
 - ASP.NET Core Identity for authentication
 - Entity Framework Core ORM (Code First approach)
 - SQL Server database with migrations
@@ -101,7 +101,7 @@ LibraryDemoApp/
 ## ⚙️ Setup & Installation
 
 ### Prerequisites
-- [.NET SDK 8.0+](https://dotnet.microsoft.com/download) (developed against .NET 10)
+- [.NET SDK 10.0](https://dotnet.microsoft.com/download) (satisfies the .NET 8+ requirement)
 - [Node.js](https://nodejs.org/) 18+ and npm
 - SQL Server or SQL Server Express, reachable as the local default instance (`.`)
 
