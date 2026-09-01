@@ -1,6 +1,6 @@
-# Library App - Full Stack Book Management System
+# Library App - Book Management System
 
-A complete full-stack web application for managing a library book inventory system with Angular frontend and .NET 10 backend.
+A complete web application for managing a library book inventory system with Angular frontend and .NET 10 backend.
 
 ## 📋 Overview
 
