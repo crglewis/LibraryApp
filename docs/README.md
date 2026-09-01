@@ -5,7 +5,7 @@ A complete web application for managing a library book inventory system with Ang
 ## 📋 Overview
 
 This project implements:
-- .NET Web API development (targets .NET 10, satisfying the .NET 8+ requirement)
+- .NET Web API development (targets .NET 10)
 - ASP.NET Core Identity & Role-based access control
 - Entity Framework Core with SQL Server
 - Angular SPA (Single Page Application) development
@@ -14,7 +14,7 @@ This project implements:
 ## 🚀 Technology Stack
 
 ### Backend (.NET 10)
-- .NET 10 Web API (satisfies the .NET 8+ requirement)
+- .NET 10 Web API
 - ASP.NET Core Identity for authentication
 - Entity Framework Core ORM
 - SQL Server database with migrations
