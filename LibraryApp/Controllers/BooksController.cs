@@ -49,11 +49,27 @@ namespace LibraryApp.Controllers
         {
             if (id == book.Id)
             {
-                Context.Entry(book).State = EntityState.Modified;
+                var existingBook = await Context.Books.FindAsync(id);
+                if (existingBook != null)
+                {
+                    // IsAvailable is intentionally left untouched here - it's only meant to change
+                    // via the checkout/return endpoints in BookingsController, not a general edit.
+                    existingBook.Title = book.Title;
+                    existingBook.Author = book.Author;
+                    existingBook.Description = book.Description;
+                    existingBook.CoverImage = book.CoverImage;
+                    existingBook.Publisher = book.Publisher;
+                    existingBook.PublicationDate = book.PublicationDate;
+                    existingBook.Category = book.Category;
+                    existingBook.ISBN = book.ISBN;
+                    existingBook.PageCount = book.PageCount;
 
-                await Context.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
 
-                return book;
+                    return existingBook;
+                }
+
+                return NotFound();
             }
 
             return BadRequest();

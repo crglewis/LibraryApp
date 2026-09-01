@@ -24,7 +24,7 @@ namespace LibraryApp.Data
                     PageCount = faker.Random.Int(100, 500),
                     PublicationDate = faker.Date.Past(50),
                     CoverImage = "https://example.com/covers/" + faker.Commerce.ProductName().Replace(" ", "_") + ".jpg",
-                    IsAvailable = faker.Random.Bool()
+                    IsAvailable = true
                 };
                 
                 books.Add(book);

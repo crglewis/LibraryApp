@@ -96,6 +96,41 @@ namespace LibraryApp.Tests
         }
 
         [Fact]
+        public async Task UpdateBook_AppliesEditedFields()
+        {
+            await using var context = TestDbContextFactory.Create();
+            var book = MakeBook("Original Title");
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+            var controller = new BooksController(context);
+            var edited = MakeBook("Updated Title");
+            edited.Id = book.Id;
+
+            var result = await controller.UpdateBook(book.Id, edited);
+
+            Assert.Equal("Updated Title", result.Value?.Title);
+        }
+
+        [Fact]
+        public async Task UpdateBook_DoesNotChangeAvailability_WhenBookIsCheckedOut()
+        {
+            await using var context = TestDbContextFactory.Create();
+            var book = MakeBook("Checked Out Book", isAvailable: false);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+            var controller = new BooksController(context);
+
+            // Mirrors the inventory edit form, which doesn't send isAvailable at all,
+            // so it comes across as the Book model's default (true).
+            var edited = MakeBook("Checked Out Book (edited)");
+            edited.Id = book.Id;
+
+            var result = await controller.UpdateBook(book.Id, edited);
+
+            Assert.False(result.Value?.IsAvailable);
+        }
+
+        [Fact]
         public async Task SearchBooks_ReturnsOnlyBooksWithMatchingPartialTitle()
         {
             await using var context = TestDbContextFactory.Create();
