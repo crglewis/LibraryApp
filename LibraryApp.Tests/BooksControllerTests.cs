@@ -147,5 +147,28 @@ namespace LibraryApp.Tests
             Assert.Equal(2, books.Count());
             Assert.DoesNotContain(books, b => b.Title == "Moby Dick");
         }
+
+        [Fact]
+        public async Task SearchBooks_IncludesReviews_SoClientsCanComputeAverageRating()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+            await using var context = TestDbContextFactory.Create(databaseName);
+            var book = MakeBook("Reviewed Book");
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+            context.Reviews.AddRange(
+                new Review { BookId = book.Id, UserId = "u1", Message = "Great", Rating = 5 },
+                new Review { BookId = book.Id, UserId = "u2", Message = "Fine", Rating = 3 });
+            await context.SaveChangesAsync();
+
+            // Fresh context so the result reflects what the query loads, not what's already tracked.
+            await using var queryContext = TestDbContextFactory.Create(databaseName);
+            var controller = new BooksController(queryContext);
+
+            var result = await controller.SearchBooks("Reviewed");
+
+            var found = Assert.Single(Assert.IsAssignableFrom<IEnumerable<Book>>(result.Value));
+            Assert.Equal(2, found.Reviews.Count);
+        }
     }
 }

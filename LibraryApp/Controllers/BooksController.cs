@@ -96,7 +96,9 @@ namespace LibraryApp.Controllers
         {
             if (!string.IsNullOrWhiteSpace(query))
             {
+                // Reviews are included so the client can derive averageRating, same as GetBooks.
                 var books = await Context.Books
+                    .Include(b => b.Reviews)
                     .Where(b => b.Title.Contains(query))
                     .ToListAsync();
 
