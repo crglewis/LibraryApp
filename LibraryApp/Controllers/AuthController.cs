@@ -3,57 +3,49 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LibraryApp.Models;
 
-#pragma warning disable CS8604
-
 namespace LibraryApp.Controllers
 {
+   [Authorize]
    [ApiController]
    [Route("api/[controller]")]
-   [Authorize]
    public class AuthController : ControllerBase
    {
-      private readonly UserManager<ApplicationUser> _userManager;
-      private readonly RoleManager<IdentityRole> _roleManager;
-      private readonly SignInManager<ApplicationUser> _signInManager;
-
-      public AuthController(UserManager<ApplicationUser> userManager,
-                            RoleManager<IdentityRole> roleManager,
-                            SignInManager<ApplicationUser> signInManager)
+      public AuthController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+         SignInManager<ApplicationUser> signInManager)
       {
-         _userManager = userManager;
-         _roleManager = roleManager;
-         _signInManager = signInManager;
+         UserManager = userManager;
+         RoleManager = roleManager;
+         SignInManager = signInManager;
       }
 
-      [HttpPost("register")]
       [AllowAnonymous]
+      [HttpPost("register")]
       public async Task<IActionResult> Register([FromBody] RegisterRequest request)
       {
-         if (request.Role != "Librarian" && request.Role != "Customer")
+         if (request?.Role is not ("Librarian" or "Customer"))
          {
             return BadRequest("Invalid role specified.");
          }
 
-         var user = new ApplicationUser
+         var applicationUser = new ApplicationUser
          {
             UserName = request.Email,
             Email = request.Email,
             Role = request.Role
          };
 
-         var result = await _userManager.CreateAsync(user, request.Password);
-
-         if (!result.Succeeded)
+         var identityResult = await UserManager.CreateAsync(applicationUser, request.Password);
+         if (!identityResult.Succeeded)
          {
-            return BadRequest(result.Errors);
+            return BadRequest(identityResult.Errors);
          }
 
-         if (!await _roleManager.RoleExistsAsync(request.Role))
+         if (!await RoleManager.RoleExistsAsync(request.Role))
          {
-            await _roleManager.CreateAsync(new IdentityRole(request.Role));
+            await RoleManager.CreateAsync(new IdentityRole(request.Role));
          }
 
-         var roleResult = await _userManager.AddToRolesAsync(user, new[] { request.Role });
+         var roleResult = await UserManager.AddToRolesAsync(applicationUser, new[] { request.Role });
          if (!roleResult.Succeeded)
          {
             return BadRequest(roleResult.Errors);
@@ -62,23 +54,22 @@ namespace LibraryApp.Controllers
          return Ok(new { Message = "User registered successfully." });
       }
 
-      [HttpPost("login")]
       [AllowAnonymous]
+      [HttpPost("login")]
       public async Task<IActionResult> Login([FromBody] LoginRequest request)
       {
-         var user = await _userManager.FindByEmailAsync(request.Email);
+         var user = await UserManager.FindByEmailAsync(request.Email);
          if (user == null)
          {
             return Unauthorized(new { Message = "Invalid credentials." });
          }
 
-         // Skip login if username is empty or password is missing
          if (string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(request.Password))
          {
             return Unauthorized(new { Message = "Invalid credentials." });
          }
 
-         var result = await _signInManager.PasswordSignInAsync(user.UserName, request.Password, false, false);
+         var result = await SignInManager.PasswordSignInAsync(user.UserName, request.Password, false, false);
          if (result.Succeeded)
          {
             return Ok(new { Message = "Login successful." });
@@ -90,14 +81,14 @@ namespace LibraryApp.Controllers
       [HttpPost("logout")]
       public async Task<IActionResult> Logout()
       {
-         await _signInManager.SignOutAsync();
+         await SignInManager.SignOutAsync();
          return Ok(new { Message = "Logged out." });
       }
 
       [HttpGet("me")]
       public async Task<ActionResult> Me()
       {
-         var user = await _userManager.GetUserAsync(User);
+         var user = await UserManager.GetUserAsync(User);
          if (user == null)
          {
             return Unauthorized();
@@ -105,7 +96,9 @@ namespace LibraryApp.Controllers
 
          return Ok(new { Id = user.Id, Email = user.Email, Role = user.Role });
       }
+
+      private readonly UserManager<ApplicationUser> UserManager;
+      private readonly RoleManager<IdentityRole> RoleManager;
+      private readonly SignInManager<ApplicationUser> SignInManager;
    }
 }
-
-#pragma warning restore CS8604

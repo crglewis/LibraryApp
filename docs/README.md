@@ -1,4 +1,4 @@
-# Library Demo App - Full Stack Book Management System
+# Library App - Full Stack Book Management System
 
 A complete full-stack web application for managing a library book inventory system with Angular frontend and .NET 10 backend.
 
@@ -16,7 +16,7 @@ This project implements:
 ### Backend (.NET 10)
 - .NET 10 Web API (satisfies the .NET 8+ requirement)
 - ASP.NET Core Identity for authentication
-- Entity Framework Core ORM (Code First approach)
+- Entity Framework Core ORM
 - SQL Server database with migrations
 - Bogus library for test data seeding
 - Role-based authorization middleware

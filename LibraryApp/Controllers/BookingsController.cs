@@ -9,37 +9,64 @@ using LibraryApp.Models;
 
 namespace LibraryApp.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class BookingsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IHubContext<BookHub> _bookHub;
-
-        public BookingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IHubContext<BookHub> bookHub)
+        public BookingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,
+            IHubContext<BookHub> bookHub)
         {
-            _context = context;
-            _userManager = userManager;
-            _bookHub = bookHub;
+            Context = context;
+            UserManager = userManager;
+            BookHub = bookHub;
         }
 
         [HttpGet]
         [Authorize(Roles = "Librarian")]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetAllBookings()
+        public async Task<ActionResult<List<Booking>>> GetAllBookings()
         {
-            return await _context.Bookings
+            return await Context.Bookings
                 .Include(b => b.Book)
                 .OrderByDescending(b => b.CheckoutDate)
                 .ToListAsync();
+        }
+
+
+        [HttpPost("returns")]
+        [Authorize(Roles = "Librarian")]
+        public async Task<ActionResult> ReturnBook([FromBody] ReturnRequest request)
+        {
+            var book = await Context.Books.FindAsync(request.BookId);
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            var booking = await Context.Bookings
+                .FirstOrDefaultAsync(b => b.BookId == request.BookId && b.IsReturned == false);
+            if (booking == null)
+            {
+                return BadRequest("No active checkout found for this book.");
+            }
+
+            book.IsAvailable = true;
+            booking.IsReturned = true;
+            booking.ReturnDate = DateTime.UtcNow;
+
+            await Context.SaveChangesAsync();
+
+            var item = new { bookId = book.Id, isAvailable = true };
+            await BookHub.Clients.All.SendAsync("BookAvailabilityChanged", item);
+
+            return Ok(new { Message = "Book returned successfully." });
         }
 
         [HttpPost]
         [Authorize(Roles = "Customer")]
         public async Task<ActionResult> CheckoutBook([FromBody] BookingRequest request)
         {
-            var book = await _context.Books.FindAsync(request.BookId);
+            var book = await Context.Books.FindAsync(request.BookId);
             if (book == null)
             {
                 return NotFound("Book not found.");
@@ -53,49 +80,25 @@ namespace LibraryApp.Controllers
             var booking = new Booking
             {
                 BookId = request.BookId,
-                UserId = _userManager.GetUserId(User)!,
+                UserId = UserManager.GetUserId(User)!,
                 CheckoutDate = DateTime.UtcNow,
                 DueDate = DateTime.UtcNow.AddDays(5),
                 IsReturned = false
             };
 
-            _context.Bookings.Add(booking);
+            Context.Bookings.Add(booking);
             book.IsAvailable = false;
 
-            await _context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
 
-            await _bookHub.Clients.All.SendAsync("BookAvailabilityChanged", new { bookId = book.Id, isAvailable = false });
+            var item = new { bookId = book.Id, isAvailable = false };
+            await BookHub.Clients.All.SendAsync("BookAvailabilityChanged", item);
 
             return Ok(new { Message = "Book checked out successfully.", DueDate = booking.DueDate });
         }
 
-        [HttpPost("returns")]
-        [Authorize(Roles = "Librarian")]
-        public async Task<ActionResult> ReturnBook([FromBody] ReturnRequest request)
-        {
-            var book = await _context.Books.FindAsync(request.BookId);
-            if (book == null)
-            {
-                return NotFound("Book not found.");
-            }
-
-            var booking = await _context.Bookings
-                .FirstOrDefaultAsync(b => b.BookId == request.BookId && b.IsReturned == false);
-
-            if (booking == null)
-            {
-                return BadRequest("No active checkout found for this book.");
-            }
-
-            book.IsAvailable = true;
-            booking.IsReturned = true;
-            booking.ReturnDate = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            await _bookHub.Clients.All.SendAsync("BookAvailabilityChanged", new { bookId = book.Id, isAvailable = true });
-
-            return Ok(new { Message = "Book returned successfully." });
-        }
+        private readonly ApplicationDbContext Context;
+        private readonly UserManager<ApplicationUser> UserManager;
+        private readonly IHubContext<BookHub> BookHub;
     }
 }

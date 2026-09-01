@@ -13,7 +13,7 @@ namespace LibraryApp.Models
         public Book Book { get; set; } = null!;
 
         [Required]
-        public string UserId { get; set; } // Identity User ID
+        public string UserId { get; set; } = string.Empty; // Identity User ID
 
         [Required]
         public string Message { get; set; } = string.Empty;

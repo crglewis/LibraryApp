@@ -7,18 +7,15 @@ using LibraryApp.Models;
 
 namespace LibraryApp.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ReviewsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
         public ReviewsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _userManager = userManager;
+            Context = context;
+            UserManager = userManager;
         }
 
         [HttpPost]
@@ -30,51 +27,36 @@ namespace LibraryApp.Controllers
                 BookId = request.BookId,
                 Message = request.Message,
                 Rating = request.Rating,
-                UserId = _userManager.GetUserId(User)!,
+                UserId = UserManager.GetUserId(User)!,
                 CreatedAt = System.DateTime.UtcNow
             };
 
-            _context.Reviews.Add(review);
-            await _context.SaveChangesAsync();
+            Context.Reviews.Add(review);
+            await Context.SaveChangesAsync();
 
             return Ok(new { Message = "Review added successfully." });
         }
 
         [HttpGet("{bookId}")]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews(int bookId)
+        public async Task<ActionResult<List<ReviewDto>>> GetReviews(int bookId)
         {
-            return await (from r in _context.Reviews
-                           join u in _context.Users on r.UserId equals u.Id
-                           where r.BookId == bookId
-                           orderby r.CreatedAt descending
-                           select new ReviewDto
-                           {
-                               Id = r.Id,
-                               BookId = r.BookId,
-                               UserId = r.UserId,
-                               UserName = u.Email ?? "Anonymous",
-                               Message = r.Message,
-                               Rating = r.Rating,
-                               CreatedAt = r.CreatedAt
-                           }).ToListAsync();
+            return await (from r in Context.Reviews
+                          join u in Context.Users on r.UserId equals u.Id
+                          where r.BookId == bookId
+                          orderby r.CreatedAt descending
+                          select new ReviewDto
+                          {
+                              Id = r.Id,
+                              BookId = r.BookId,
+                              UserId = r.UserId,
+                              UserName = u.Email ?? "Anonymous",
+                              Message = r.Message,
+                              Rating = r.Rating,
+                              CreatedAt = r.CreatedAt
+                          }).ToListAsync();
         }
-    }
 
-    public class ReviewRequest
-    {
-        public int BookId { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public int Rating { get; set; }
-    }
-
-    public class ReviewDto
-    {
-        public int Id { get; set; }
-        public int BookId { get; set; }
-        public string UserId { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
-        public string Message { get; set; } = string.Empty;
-        public int Rating { get; set; }
-        public System.DateTime CreatedAt { get; set; }
+        private readonly ApplicationDbContext Context;
+        private readonly UserManager<ApplicationUser> UserManager;
     }
 }

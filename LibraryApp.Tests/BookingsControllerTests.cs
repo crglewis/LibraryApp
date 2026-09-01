@@ -25,8 +25,10 @@ namespace LibraryApp.Tests
             clientProxyMock
                 .Setup(p => p.SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), default))
                 .Returns(Task.CompletedTask);
+                
             var hubClientsMock = new Mock<IHubClients>();
             hubClientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
+            
             var hubContextMock = new Mock<IHubContext<BookHub>>();
             hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
 
