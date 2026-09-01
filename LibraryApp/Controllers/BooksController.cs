@@ -25,12 +25,12 @@ namespace LibraryApp.Controllers
         public async Task<ActionResult<Book>> GetBook(int id)
         {
             var book = await Context.Books.Include(b => b.Reviews).FirstOrDefaultAsync(b => b.Id == id);
-            if (book == null)
+            if (book != null)
             {
-                return NotFound();
+                return book;
             }
 
-            return book;
+            return NotFound();
         }
 
         [HttpPost]
@@ -47,16 +47,16 @@ namespace LibraryApp.Controllers
         [Authorize(Roles = "Librarian")]
         public async Task<ActionResult<Book>> UpdateBook(int id, [FromBody] Book book)
         {
-            if (id != book.Id)
+            if (id == book.Id)
             {
-                return BadRequest();
+                Context.Entry(book).State = EntityState.Modified;
+
+                await Context.SaveChangesAsync();
+
+                return book;
             }
 
-            Context.Entry(book).State = EntityState.Modified;
-
-            await Context.SaveChangesAsync();
-
-            return book;
+            return BadRequest();
         }
 
         [HttpDelete("{id}")]
@@ -64,30 +64,30 @@ namespace LibraryApp.Controllers
         public async Task<IActionResult> DeleteBook(int id)
         {
             var book = await Context.Books.FindAsync(id);
-            if (book == null)
+            if (book != null)
             {
-                return NotFound();
+                Context.Books.Remove(book);
+                await Context.SaveChangesAsync();
+
+                return NoContent();
             }
 
-            Context.Books.Remove(book);
-            await Context.SaveChangesAsync();
-
-            return NoContent();
+            return NotFound();
         }
 
         [HttpGet("search")]
         public async Task<ActionResult<List<Book>>> SearchBooks([FromQuery] string query)
         {
-            if (string.IsNullOrWhiteSpace(query))
+            if (!string.IsNullOrWhiteSpace(query))
             {
-                return BadRequest("Search query is required.");
+                var books = await Context.Books
+                    .Where(b => b.Title.Contains(query))
+                    .ToListAsync();
+
+                return books;
             }
 
-            var books = await Context.Books
-                .Where(b => b.Title.Contains(query))
-                .ToListAsync();
-
-            return books;
+            return BadRequest("Search query is required.");
         }
 
         private readonly ApplicationDbContext Context;
