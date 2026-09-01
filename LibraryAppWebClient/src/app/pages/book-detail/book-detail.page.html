@@ -58,7 +58,6 @@
       <div class="reviews-list" *ngIf="reviews.length > 0">
         <div class="review-card" *ngFor="let review of reviews">
           <div class="review-header">
-            <span class="review-author">{{ review.userName }}</span>
           </div>
           <div class="review-rating">{{ getRatingStars(review.rating) }}</div>
           <p class="review-message">{{ review.message }}</p>
