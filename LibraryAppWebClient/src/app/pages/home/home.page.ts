@@ -29,9 +29,9 @@ export class HomePage implements OnInit {
 
   loadFeaturedBooks(): void {
     this.loading = true;
-    this.apiService.getBooks().subscribe({
+    this.apiService.getFeaturedBooks(5).subscribe({
       next: (books) => {
-        this.featuredBooks = [...books].sort(() => 0.5 - Math.random()).slice(0, 5);
+        this.featuredBooks = books;
         this.loading = false;
       },
       error: () => {

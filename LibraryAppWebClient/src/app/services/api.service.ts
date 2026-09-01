@@ -85,6 +85,12 @@ export class ApiService {
     );
   }
 
+  getFeaturedBooks(count = 5): Observable<Book[]> {
+    return this.http.get<Book[]>(`${API_BASE_URL}/books/featured?count=${count}`).pipe(
+      map(books => books.map(withAverageRating))
+    );
+  }
+
   getBookById(id: number): Observable<Book> {
     return this.http.get<Book>(`${API_BASE_URL}/books/${id}`).pipe(map(withAverageRating));
   }

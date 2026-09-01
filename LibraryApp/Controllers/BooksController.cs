@@ -21,6 +21,18 @@ namespace LibraryApp.Controllers
             return await Context.Books.Include(b => b.Reviews).ToListAsync();
         }
 
+        [HttpGet("featured")]
+        public async Task<ActionResult<List<Book>>> GetFeaturedBooks([FromQuery] int count = 5)
+        {
+            count = Math.Clamp(count, 1, 20);
+
+            return await Context.Books
+                .Include(b => b.Reviews)
+                .OrderBy(b => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {

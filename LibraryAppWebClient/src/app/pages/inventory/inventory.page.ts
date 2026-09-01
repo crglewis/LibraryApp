@@ -1,13 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
+import { SignalrService } from '../../services/signalr.service';
 import { Book } from '../../models';
 import { NavComponent } from '../../components/nav.component';
 
@@ -57,17 +59,34 @@ function emptyForm(): BookFormModel {
   templateUrl: './inventory.page.html',
   styleUrls: ['./inventory.page.css'],
 })
-export class InventoryPage implements OnInit {
+export class InventoryPage implements OnInit, OnDestroy {
   books: Book[] = [];
   isLoading = false;
   viewType: 'list' | 'form' = 'list';
   bookForm: BookFormModel = emptyForm();
   readonly displayedColumns = ['title', 'author', 'status', 'actions'];
 
-  constructor(public apiService: ApiService, private router: Router, private snackBar: MatSnackBar) {}
+  private availabilitySubscription?: Subscription;
+
+  constructor(
+    public apiService: ApiService,
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private signalrService: SignalrService
+  ) {}
 
   ngOnInit(): void {
     this.loadBooks();
+
+    this.signalrService.connect();
+    this.availabilitySubscription = this.signalrService.bookAvailabilityChanged$.subscribe((event) => {
+      const book = this.books.find((b) => b.id === event.bookId);
+      if (book) book.isAvailable = event.isAvailable;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.availabilitySubscription?.unsubscribe();
   }
 
   loadBooks(): void {

@@ -32,6 +32,42 @@ namespace LibraryApp.Tests
         }
 
         [Fact]
+        public async Task GetFeaturedBooks_ReturnsRequestedNumberOfDistinctBooks_WithReviews()
+        {
+            await using var context = TestDbContextFactory.Create();
+            context.Books.AddRange(Enumerable.Range(1, 10).Select(i => MakeBook($"Book {i}")));
+            await context.SaveChangesAsync();
+            var first = await context.Books.FirstAsync();
+            context.Reviews.Add(new Review { BookId = first.Id, UserId = "u1", Message = "Good", Rating = 4 });
+            await context.SaveChangesAsync();
+            var controller = new BooksController(context);
+
+            var result = await controller.GetFeaturedBooks(count: 5);
+
+            var books = Assert.IsAssignableFrom<IEnumerable<Book>>(result.Value).ToList();
+            Assert.Equal(5, books.Count);
+            Assert.Equal(5, books.Select(b => b.Id).Distinct().Count());
+            var featuredFirst = books.SingleOrDefault(b => b.Id == first.Id);
+            if (featuredFirst != null) Assert.Single(featuredFirst.Reviews);
+        }
+
+        [Theory]
+        [InlineData(0, 1)]
+        [InlineData(-3, 1)]
+        [InlineData(500, 10)]
+        public async Task GetFeaturedBooks_ClampsCount(int requested, int expected)
+        {
+            await using var context = TestDbContextFactory.Create();
+            context.Books.AddRange(Enumerable.Range(1, 10).Select(i => MakeBook($"Book {i}")));
+            await context.SaveChangesAsync();
+            var controller = new BooksController(context);
+
+            var result = await controller.GetFeaturedBooks(requested);
+
+            Assert.Equal(expected, Assert.IsAssignableFrom<IEnumerable<Book>>(result.Value).Count());
+        }
+
+        [Fact]
         public async Task GetBook_ReturnsBook_WhenItExists()
         {
             await using var context = TestDbContextFactory.Create();

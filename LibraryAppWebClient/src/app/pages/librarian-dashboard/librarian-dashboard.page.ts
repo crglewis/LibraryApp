@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
+import { SignalrService } from '../../services/signalr.service';
 import { Booking } from '../../models';
 import { NavComponent } from '../../components/nav.component';
 
@@ -15,18 +17,29 @@ import { NavComponent } from '../../components/nav.component';
   templateUrl: './librarian-dashboard.page.html',
   styleUrls: ['./librarian-dashboard.page.css'],
 })
-export class LibrarianDashboardPage implements OnInit {
+export class LibrarianDashboardPage implements OnInit, OnDestroy {
   bookings: Booking[] = [];
   isLoading = false;
 
-  constructor(private apiService: ApiService) {}
+  private availabilitySubscription?: Subscription;
+
+  constructor(private apiService: ApiService, private signalrService: SignalrService) {}
 
   ngOnInit(): void {
     this.loadBookings();
+
+    this.signalrService.connect();
+    this.availabilitySubscription = this.signalrService.bookAvailabilityChanged$.subscribe(() => {
+      this.loadBookings(true);
+    });
   }
 
-  loadBookings(): void {
-    this.isLoading = true;
+  ngOnDestroy(): void {
+    this.availabilitySubscription?.unsubscribe();
+  }
+
+  loadBookings(silent = false): void {
+    if (!silent) this.isLoading = true;
     this.apiService.getAllBookings().subscribe({
       next: (data) => {
         this.bookings = data;
