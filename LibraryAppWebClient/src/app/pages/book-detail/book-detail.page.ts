@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { ApiService } from '../services/api.service';
-import { SignalrService } from '../services/signalr.service';
-import { Book, Review, User } from '../models';
-import { ReviewFormComponent } from '../components/review-form.component';
-import { NavComponent } from '../components/nav.component';
-import { computeAverageRating, getRatingStars } from '../utils';
+import { ApiService } from '../../services/api.service';
+import { SignalrService } from '../../services/signalr.service';
+import { Book, Review, User } from '../../models';
+import { ReviewFormComponent } from '../../components/review-form.component';
+import { NavComponent } from '../../components/nav.component';
+import { computeAverageRating, getRatingStars } from '../../utils';
 
 @Component({
   selector: 'app-book-detail',

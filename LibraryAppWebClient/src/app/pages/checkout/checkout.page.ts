@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ApiService } from '../services/api.service';
-import { Book, User } from '../models';
-import { NavComponent } from '../components/nav.component';
+import { ApiService } from '../../services/api.service';
+import { Book, User } from '../../models';
+import { NavComponent } from '../../components/nav.component';
 
 @Component({
   selector: 'app-checkout',

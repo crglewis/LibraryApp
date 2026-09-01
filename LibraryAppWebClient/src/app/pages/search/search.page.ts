@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService } from '../services/api.service';
-import { Book } from '../models';
-import { NavComponent } from '../components/nav.component';
-import { getRatingStars } from '../utils';
+import { ApiService } from '../../services/api.service';
+import { Book } from '../../models';
+import { NavComponent } from '../../components/nav.component';
+import { getRatingStars } from '../../utils';
 
 @Component({
   selector: 'app-search',

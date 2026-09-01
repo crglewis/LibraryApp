@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ApiService } from '../services/api.service';
-import { SignalrService } from '../services/signalr.service';
-import { Book } from '../models';
-import { NavComponent } from '../components/nav.component';
-import { getRatingStars } from '../utils';
+import { ApiService } from '../../services/api.service';
+import { SignalrService } from '../../services/signalr.service';
+import { Book } from '../../models';
+import { NavComponent } from '../../components/nav.component';
+import { getRatingStars } from '../../utils';
 
 @Component({
   selector: 'app-browse-books',

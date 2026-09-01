@@ -7,9 +7,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ApiService } from '../services/api.service';
-import { Book } from '../models';
-import { NavComponent } from '../components/nav.component';
+import { ApiService } from '../../services/api.service';
+import { Book } from '../../models';
+import { NavComponent } from '../../components/nav.component';
 
 interface BookFormModel {
   id?: number;

@@ -14,6 +14,8 @@ namespace LibraryApp.Controllers
     [Route("api/[controller]")]
     public class BookingsController : ControllerBase
     {
+        private const int CheckoutPeriodDays = 5;
+
         public BookingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,
             IHubContext<BookHub> bookHub)
         {
@@ -38,13 +40,14 @@ namespace LibraryApp.Controllers
         public async Task<ActionResult> ReturnBook([FromBody] ReturnRequest request)
         {
             var book = await Context.Books.FindAsync(request.BookId);
+            var booking = await Context.Bookings
+                .FirstOrDefaultAsync(b => b.BookId == request.BookId && b.IsReturned == false);
+
             if (book == null)
             {
                 return NotFound("Book not found.");
             }
 
-            var booking = await Context.Bookings
-                .FirstOrDefaultAsync(b => b.BookId == request.BookId && b.IsReturned == false);
             if (booking == null)
             {
                 return BadRequest("No active checkout found for this book.");
@@ -56,8 +59,7 @@ namespace LibraryApp.Controllers
 
             await Context.SaveChangesAsync();
 
-            var item = new { bookId = book.Id, isAvailable = true };
-            await BookHub.Clients.All.SendAsync("BookAvailabilityChanged", item);
+            await NotifyAvailabilityChanged(book.Id, isAvailable: true);
 
             return Ok(new { Message = "Book returned successfully." });
         }
@@ -82,7 +84,7 @@ namespace LibraryApp.Controllers
                 BookId = request.BookId,
                 UserId = UserManager.GetUserId(User)!,
                 CheckoutDate = DateTime.UtcNow,
-                DueDate = DateTime.UtcNow.AddDays(5),
+                DueDate = DateTime.UtcNow.AddDays(CheckoutPeriodDays),
                 IsReturned = false
             };
 
@@ -91,10 +93,14 @@ namespace LibraryApp.Controllers
 
             await Context.SaveChangesAsync();
 
-            var item = new { bookId = book.Id, isAvailable = false };
-            await BookHub.Clients.All.SendAsync("BookAvailabilityChanged", item);
+            await NotifyAvailabilityChanged(book.Id, isAvailable: false);
 
             return Ok(new { Message = "Book checked out successfully.", DueDate = booking.DueDate });
+        }
+
+        private Task NotifyAvailabilityChanged(int bookId, bool isAvailable)
+        {
+            return BookHub.Clients.All.SendAsync("BookAvailabilityChanged", new { bookId, isAvailable });
         }
 
         private readonly ApplicationDbContext Context;

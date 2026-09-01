@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ApiService } from '../services/api.service';
-import { Booking } from '../models';
-import { NavComponent } from '../components/nav.component';
+import { ApiService } from '../../services/api.service';
+import { Booking } from '../../models';
+import { NavComponent } from '../../components/nav.component';
 
 @Component({
   selector: 'app-librarian-dashboard',
